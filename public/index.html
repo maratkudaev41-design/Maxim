@@ -118,6 +118,14 @@
             cursor: pointer;
         }
 
+        .error-message {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: -8px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
         /* Стили для основного интерфейса */
         .sidebar {
             width: 350px;
@@ -529,18 +537,29 @@
         <div class="auth-form">
             <h2 id="authTitle">Вход в NotMax</h2>
             <div id="loginForm">
-                <input type="text" placeholder="Телефон" id="loginInput">
-                <input type="password" placeholder="Пароль" id="passwordInput">
+                <input type="tel" placeholder="Телефон (только цифры)" id="loginInput" pattern="[0-9]*" inputmode="numeric">
+                <input type="password" placeholder="Пароль (минимум 4 символа)" id="passwordInput">
                 <button onclick="login()">Войти</button>
                 <div class="auth-switch">
                     Нет аккаунта? <span onclick="showRegister()">Зарегистрироваться</span>
                 </div>
             </div>
             <div id="registerForm" style="display: none;">
-                <input type="text" placeholder="Имя" id="regName">
-                <input type="text" placeholder="Фамилия" id="regLastName">
-                <input type="text" placeholder="Телефон" id="regPhone">
-                <input type="password" placeholder="Пароль" id="regPassword">
+                <input type="text" placeholder="Имя (минимум 3 символа)" id="regName" minlength="3">
+                <div class="error-message" id="nameError">Имя должно содержать минимум 3 символа</div>
+                
+                <input type="text" placeholder="Фамилия (минимум 4 символа)" id="regLastName" minlength="4">
+                <div class="error-message" id="lastNameError">Фамилия должна содержать минимум 4 символа</div>
+                
+                <input type="text" placeholder="Игровой ник (будет отображаться)" id="regNickname">
+                <div class="error-message" id="nicknameError">Введите игровой ник</div>
+                
+                <input type="tel" placeholder="Телефон (только цифры)" id="regPhone" pattern="[0-9]*" inputmode="numeric">
+                <div class="error-message" id="phoneError">Введите корректный номер телефона</div>
+                
+                <input type="password" placeholder="Пароль (минимум 4 символа)" id="regPassword" minlength="4">
+                <div class="error-message" id="passwordError">Пароль должен содержать минимум 4 символа</div>
+                
                 <button onclick="register()">Зарегистрироваться</button>
                 <div class="auth-switch">
                     Уже есть аккаунт? <span onclick="showLogin()">Войти</span>
@@ -697,8 +716,7 @@
                 <h3>Редактировать профиль</h3>
                 <span class="modal-close" onclick="closeEditProfileModal()">&times;</span>
             </div>
-            <input type="text" id="editFirstName" placeholder="Имя" class="profile-input">
-            <input type="text" id="editLastName" placeholder="Фамилия" class="profile-input">
+            <input type="text" id="editNickname" placeholder="Игровой ник" class="profile-input">
             <button onclick="saveProfileChanges()" class="save-profile-btn">Сохранить изменения</button>
         </div>
     </div>
@@ -721,6 +739,9 @@
                 }
             });
 
+            // Валидация полей в реальном времени
+            setupValidation();
+
             // Закрытие модальных окон при клике вне их
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('modal')) {
@@ -729,11 +750,56 @@
             });
         });
 
+        // Настройка валидации полей
+        function setupValidation() {
+            const nameInput = document.getElementById('regName');
+            const lastNameInput = document.getElementById('regLastName');
+            const nicknameInput = document.getElementById('regNickname');
+            const phoneInput = document.getElementById('regPhone');
+            const passwordInput = document.getElementById('regPassword');
+
+            nameInput.addEventListener('input', function() {
+                validateField(nameInput, 'nameError', nameInput.value.length >= 3, 'Имя должно содержать минимум 3 символа');
+            });
+
+            lastNameInput.addEventListener('input', function() {
+                validateField(lastNameInput, 'lastNameError', lastNameInput.value.length >= 4, 'Фамилия должна содержать минимум 4 символа');
+            });
+
+            nicknameInput.addEventListener('input', function() {
+                validateField(nicknameInput, 'nicknameError', nicknameInput.value.trim().length > 0, 'Введите игровой ник');
+            });
+
+            phoneInput.addEventListener('input', function() {
+                const phone = phoneInput.value.replace(/\D/g, '');
+                phoneInput.value = phone;
+                validateField(phoneInput, 'phoneError', phone.length >= 10, 'Введите корректный номер телефона (минимум 10 цифр)');
+            });
+
+            passwordInput.addEventListener('input', function() {
+                validateField(passwordInput, 'passwordError', passwordInput.value.length >= 4, 'Пароль должен содержать минимум 4 символа');
+            });
+        }
+
+        function validateField(input, errorId, isValid, errorMessage) {
+            const errorElement = document.getElementById(errorId);
+            if (!isValid && input.value.length > 0) {
+                errorElement.textContent = errorMessage;
+                errorElement.style.display = 'block';
+                input.style.border = '1px solid #ff6b6b';
+            } else {
+                errorElement.style.display = 'none';
+                input.style.border = 'none';
+            }
+        }
+
         // Функции авторизации
         function showRegister() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
             document.getElementById('authTitle').textContent = 'Регистрация в NotMax';
+            // Сбрасываем ошибки
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
         }
 
         function showLogin() {
@@ -742,15 +808,61 @@
             document.getElementById('authTitle').textContent = 'Вход в NotMax';
         }
 
+        function validateRegistration() {
+            const name = document.getElementById('regName').value.trim();
+            const lastName = document.getElementById('regLastName').value.trim();
+            const nickname = document.getElementById('regNickname').value.trim();
+            const phone = document.getElementById('regPhone').value;
+            const password = document.getElementById('regPassword').value;
+
+            let isValid = true;
+
+            if (name.length < 3) {
+                document.getElementById('nameError').style.display = 'block';
+                document.getElementById('regName').style.border = '1px solid #ff6b6b';
+                isValid = false;
+            }
+
+            if (lastName.length < 4) {
+                document.getElementById('lastNameError').style.display = 'block';
+                document.getElementById('regLastName').style.border = '1px solid #ff6b6b';
+                isValid = false;
+            }
+
+            if (!nickname) {
+                document.getElementById('nicknameError').style.display = 'block';
+                document.getElementById('regNickname').style.border = '1px solid #ff6b6b';
+                isValid = false;
+            }
+
+            if (phone.length < 10) {
+                document.getElementById('phoneError').style.display = 'block';
+                document.getElementById('regPhone').style.border = '1px solid #ff6b6b';
+                isValid = false;
+            }
+
+            if (password.length < 4) {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('regPassword').style.border = '1px solid #ff6b6b';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
         function login() {
             const login = document.getElementById('loginInput').value;
             const password = document.getElementById('passwordInput').value;
             
             if (login && password) {
+                if (password.length < 4) {
+                    alert('Пароль должен содержать минимум 4 символа');
+                    return;
+                }
+
                 const savedUser = localStorage.getItem('currentUser');
                 if (savedUser) {
                     const user = JSON.parse(savedUser);
-                    // Упрощенная проверка - проверяем только телефон
                     if (user.phone === login) {
                         currentUser = user;
                         showMainApp();
@@ -766,34 +878,37 @@
         }
 
         function register() {
-            const name = document.getElementById('regName').value;
-            const lastName = document.getElementById('regLastName').value;
+            if (!validateRegistration()) {
+                alert('Пожалуйста, исправьте ошибки в форме');
+                return;
+            }
+
+            const name = document.getElementById('regName').value.trim();
+            const lastName = document.getElementById('regLastName').value.trim();
+            const nickname = document.getElementById('regNickname').value.trim();
             const phone = document.getElementById('regPhone').value;
             const password = document.getElementById('regPassword').value;
             
-            if (name && phone && password) {
-                // Проверяем, не зарегистрирован ли уже пользователь с таким телефоном
-                const existingUser = localStorage.getItem('currentUser');
-                if (existingUser) {
-                    const user = JSON.parse(existingUser);
-                    if (user.phone === phone) {
-                        alert('Пользователь с таким телефоном уже зарегистрирован');
-                        return;
-                    }
+            // Проверяем, не зарегистрирован ли уже пользователь с таким телефоном
+            const existingUser = localStorage.getItem('currentUser');
+            if (existingUser) {
+                const user = JSON.parse(existingUser);
+                if (user.phone === phone) {
+                    alert('Пользователь с таким телефоном уже зарегистрирован');
+                    return;
                 }
-                
-                currentUser = {
-                    id: 1,
-                    name: name + (lastName ? ' ' + lastName : ''),
-                    phone: phone,
-                    avatar: null
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showMainApp();
-            } else {
-                alert('Пожалуйста, заполните обязательные поля (Имя, Телефон, Пароль)');
             }
+            
+            currentUser = {
+                id: 1,
+                name: name + ' ' + lastName,
+                nickname: nickname,
+                phone: phone,
+                avatar: null
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showMainApp();
         }
 
         function checkAuthStatus() {
@@ -816,8 +931,10 @@
 
         function updateUserInfo() {
             if (currentUser) {
-                document.getElementById('userName').textContent = currentUser.name;
-                document.getElementById('avatarInitials').textContent = getInitials(currentUser.name);
+                // Отображаем игровой ник вместо имени и фамилии
+                const displayName = currentUser.nickname || currentUser.name;
+                document.getElementById('userName').textContent = displayName;
+                document.getElementById('avatarInitials').textContent = getInitials(displayName);
                 
                 if (currentUser.avatar) {
                     document.getElementById('userAvatar').innerHTML = 
@@ -825,7 +942,7 @@
                         `<div class="avatar-edit">Изменить</div>`;
                 } else {
                     document.getElementById('userAvatar').innerHTML = 
-                        `<span>${getInitials(currentUser.name)}</span>` +
+                        `<span>${getInitials(displayName)}</span>` +
                         `<div class="avatar-edit">Изменить</div>`;
                 }
             }
@@ -964,7 +1081,7 @@
         }
 
         function getSenderName(senderId) {
-            return senderId === currentUser.id ? currentUser.name : 'Другой пользователь';
+            return senderId === currentUser.id ? (currentUser.nickname || currentUser.name) : 'Другой пользователь';
         }
 
         // Функции для звонков
@@ -988,9 +1105,7 @@
         function openEditProfileModal() {
             closeSettingsModal();
             if (currentUser) {
-                const names = currentUser.name.split(' ');
-                document.getElementById('editFirstName').value = names[0] || '';
-                document.getElementById('editLastName').value = names[1] || '';
+                document.getElementById('editNickname').value = currentUser.nickname || '';
             }
             document.getElementById('editProfileModal').style.display = 'flex';
         }
@@ -1000,17 +1115,16 @@
         }
 
         function saveProfileChanges() {
-            const firstName = document.getElementById('editFirstName').value.trim();
-            const lastName = document.getElementById('editLastName').value.trim();
+            const nickname = document.getElementById('editNickname').value.trim();
             
-            if (firstName) {
-                currentUser.name = lastName ? `${firstName} ${lastName}` : firstName;
+            if (nickname) {
+                currentUser.nickname = nickname;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateUserInfo();
                 closeEditProfileModal();
                 alert('Профиль успешно обновлен!');
             } else {
-                alert('Имя не может быть пустым');
+                alert('Игровой ник не может быть пустым');
             }
         }
 
