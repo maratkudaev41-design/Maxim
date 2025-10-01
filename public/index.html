@@ -545,19 +545,19 @@
                 </div>
             </div>
             <div id="registerForm" style="display: none;">
-                <input type="text" placeholder="Имя (минимум 3 символа)" id="regName" minlength="3">
+                <input type="text" placeholder="Имя" id="regName" minlength="3">
                 <div class="error-message" id="nameError">Имя должно содержать минимум 3 символа</div>
                 
-                <input type="text" placeholder="Фамилия (минимум 4 символа)" id="regLastName" minlength="4">
+                <input type="text" placeholder="Фамилия" id="regLastName" minlength="4">
                 <div class="error-message" id="lastNameError">Фамилия должна содержать минимум 4 символа</div>
                 
                 <input type="text" placeholder="Игровой ник (будет отображаться)" id="regNickname">
                 <div class="error-message" id="nicknameError">Введите игровой ник</div>
                 
-                <input type="tel" placeholder="Телефон (только цифры)" id="regPhone" pattern="[0-9]*" inputmode="numeric">
+                <input type="tel" placeholder="Телефон" id="regPhone" pattern="[0-9]*" inputmode="numeric">
                 <div class="error-message" id="phoneError">Введите корректный номер телефона</div>
                 
-                <input type="password" placeholder="Пароль (минимум 4 символа)" id="regPassword" minlength="4">
+                <input type="password" placeholder="Пароль" id="regPassword" minlength="4">
                 <div class="error-message" id="passwordError">Пароль должен содержать минимум 4 символа</div>
                 
                 <button onclick="register()">Зарегистрироваться</button>
@@ -759,11 +759,11 @@
             const passwordInput = document.getElementById('regPassword');
 
             nameInput.addEventListener('input', function() {
-                validateField(nameInput, 'nameError', nameInput.value.length >= 3, 'Имя должно содержать минимум 3 символа');
+                validateField(nameInput, 'nameError', nameInput.value.length >= 3, 'Имя');
             });
 
             lastNameInput.addEventListener('input', function() {
-                validateField(lastNameInput, 'lastNameError', lastNameInput.value.length >= 4, 'Фамилия должна содержать минимум 4 символа');
+                validateField(lastNameInput, 'lastNameError', lastNameInput.value.length >= 4, 'Фамилия');
             });
 
             nicknameInput.addEventListener('input', function() {
@@ -773,11 +773,11 @@
             phoneInput.addEventListener('input', function() {
                 const phone = phoneInput.value.replace(/\D/g, '');
                 phoneInput.value = phone;
-                validateField(phoneInput, 'phoneError', phone.length >= 10, 'Введите корректный номер телефона (минимум 10 цифр)');
+                validateField(phoneInput, 'phoneError', phone.length >= 10, 'Введите корректный номер телефона');
             });
 
             passwordInput.addEventListener('input', function() {
-                validateField(passwordInput, 'passwordError', passwordInput.value.length >= 4, 'Пароль должен содержать минимум 4 символа');
+                validateField(passwordInput, 'passwordError', passwordInput.value.length >= 4, 'Пароль');
             });
         }
 
