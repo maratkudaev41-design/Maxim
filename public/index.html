@@ -171,6 +171,7 @@
             font-size: 12px;
             padding: 2px;
             display: none;
+            color: white;
         }
 
         .avatar:hover .avatar-edit {
@@ -269,6 +270,7 @@
             cursor: pointer;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
             z-index: 100;
+            color: white;
         }
 
         /* Стили для области чата */
@@ -443,6 +445,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            transition: background-color 0.2s;
         }
 
         .modal-option:hover {
@@ -469,6 +472,14 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+        }
+
+        .logout-option {
+            color: #ff6b6b !important;
+        }
+
+        .logout-option i {
+            color: #ff6b6b !important;
         }
 
         /* Анимации */
@@ -518,7 +529,7 @@
         <div class="auth-form">
             <h2 id="authTitle">Вход в NotMax</h2>
             <div id="loginForm">
-                <input type="text" placeholder="Телефон, email или имя пользователя" id="loginInput">
+                <input type="text" placeholder="Телефон" id="loginInput">
                 <input type="password" placeholder="Пароль" id="passwordInput">
                 <button onclick="login()">Войти</button>
                 <div class="auth-switch">
@@ -554,7 +565,7 @@
                     </div>
                 </div>
                 <div class="sidebar-actions">
-                    <i class="fas fa-ellipsis-v" onclick="openSettingsModal()"></i>
+                    <i class="fas fa-ellipsis-v" onclick="openSettingsModal()" style="cursor: pointer;"></i>
                 </div>
             </div>
 
@@ -565,7 +576,7 @@
                 </div>
             </div>
 
-            <div class="chats-list">
+            <div class="chats-list" id="chatsList">
                 <!-- Список чатов будет генерироваться динамически -->
             </div>
         </div>
@@ -577,11 +588,11 @@
                     <i class="fas fa-arrow-left"></i>
                 </div>
                 <div class="chat-user-info">
-                    <div class="avatar">
+                    <div class="avatar" id="currentChatAvatar">
                         <span>D</span>
                     </div>
                     <div>
-                        <div id="currentChatName">Диалог</div>
+                        <div id="currentChatName">Выберите чат</div>
                         <div class="user-status"><span class="online-dot"></span>был(а) только что</div>
                     </div>
                 </div>
@@ -593,12 +604,14 @@
             </div>
 
             <div class="messages-container" id="messagesContainer">
-                <!-- Сообщения будут добавляться динамически -->
+                <div style="text-align: center; color: var(--text-secondary); margin-top: 50%;">
+                    Выберите чат для начала общения
+                </div>
             </div>
 
             <div class="message-input-container">
-                <input type="text" class="message-input" placeholder="Введите сообщение..." id="messageInput">
-                <button class="send-btn" onclick="sendMessage()">
+                <input type="text" class="message-input" placeholder="Введите сообщение..." id="messageInput" disabled>
+                <button class="send-btn" onclick="sendMessage()" disabled>
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
@@ -670,7 +683,7 @@
                 <i class="fas fa-palette"></i>
                 <span id="themeText">Светлая тема</span>
             </div>
-            <div class="modal-option" onclick="logout()" style="color: #ff6b6b;">
+            <div class="modal-option logout-option" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Выйти из аккаунта</span>
             </div>
@@ -686,7 +699,7 @@
             </div>
             <input type="text" id="editFirstName" placeholder="Имя" class="profile-input">
             <input type="text" id="editLastName" placeholder="Фамилия" class="profile-input">
-            <button onclick="saveProfileChanges()" class="save-profile-btn">Сохранить</button>
+            <button onclick="saveProfileChanges()" class="save-profile-btn">Сохранить изменения</button>
         </div>
     </div>
 
@@ -699,14 +712,19 @@
 
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
-            // Проверяем, авторизован ли пользователь
             checkAuthStatus();
             loadTheme();
             
-            // Добавляем обработчик нажатия Enter в поле ввода сообщения
             document.getElementById('messageInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     sendMessage();
+                }
+            });
+
+            // Закрытие модальных окон при клике вне их
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
                 }
             });
         });
@@ -729,16 +747,14 @@
             const password = document.getElementById('passwordInput').value;
             
             if (login && password) {
-                // Проверяем, есть ли зарегистрированный пользователь
                 const savedUser = localStorage.getItem('currentUser');
                 if (savedUser) {
                     const user = JSON.parse(savedUser);
-                    // Простая проверка - в реальном приложении была бы проверка пароля
                     if (user.phone === login) {
                         currentUser = user;
                         showMainApp();
                     } else {
-                        alert('Неверные данные для входа или пользователь не зарегистрирован');
+                        alert('Неверные данные для входа');
                     }
                 } else {
                     alert('Сначала необходимо зарегистрироваться');
@@ -754,22 +770,18 @@
             const phone = document.getElementById('regPhone').value;
             const password = document.getElementById('regPassword').value;
             
-            if (name && lastName && phone && password) {
-                // В реальном приложении здесь был бы запрос к серверу
+            if (name && phone && password) {
                 currentUser = {
                     id: 1,
-                    name: name + ' ' + lastName,
+                    name: name + (lastName ? ' ' + lastName : ''),
                     phone: phone,
                     avatar: null
                 };
                 
-                // Сохраняем данные пользователя
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Переходим к основному интерфейсу
                 showMainApp();
             } else {
-                alert('Пожалуйста, заполните все поля');
+                alert('Пожалуйста, заполните обязательные поля (Имя, Телефон, Пароль)');
             }
         }
 
@@ -784,14 +796,7 @@
         function showMainApp() {
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'flex';
-            
-            // Обновляем информацию о пользователе
             updateUserInfo();
-            
-            // Загружаем чаты
-            loadChats();
-            
-            // Загружаем тестовые данные
             loadSampleData();
         }
 
@@ -828,15 +833,12 @@
         document.getElementById('avatarFileInput').addEventListener('change', function(e) {
             if (e.target.files && e.target.files[0]) {
                 const reader = new FileReader();
-                
                 reader.onload = function(event) {
-                    // В реальном приложении здесь была бы загрузка на сервер
                     currentUser.avatar = event.target.result;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     updateUserInfo();
                     closeAvatarModal();
                 }
-                
                 reader.readAsDataURL(e.target.files[0]);
             }
         });
@@ -874,41 +876,35 @@
             closeNewChatModal();
         }
 
-        function loadChats() {
-            // В реальном приложении здесь был бы запрос к серверу
-            // Пока используем тестовые данные
-        }
-
         function selectChat(chatId) {
             currentChat = chatId;
-            // Обновляем интерфейс для выбранного чата
             updateChatInterface();
             
-            // На мобильных устройствах показываем область чата
+            // Активируем поле ввода
+            document.getElementById('messageInput').disabled = false;
+            document.querySelector('.send-btn').disabled = false;
+            
             if (window.innerWidth <= 768) {
                 document.querySelector('.container').classList.add('active-chat');
             }
         }
 
         function updateChatInterface() {
-            // Обновляем заголовок чата
             const chat = chats.find(c => c.id === currentChat);
             if (chat) {
                 document.getElementById('currentChatName').textContent = chat.name;
+                document.getElementById('currentChatAvatar').innerHTML = `<span>${getInitials(chat.name)}</span>`;
             }
             
-            // Очищаем контейнер сообщений
             const messagesContainer = document.getElementById('messagesContainer');
             messagesContainer.innerHTML = '';
             
-            // Добавляем сообщения
             if (messages[currentChat]) {
                 messages[currentChat].forEach(msg => {
-                    addMessageToChat(msg, false);
+                    addMessageToChat(msg, msg.sender === currentUser.id);
                 });
             }
             
-            // Прокручиваем вниз
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
@@ -924,13 +920,9 @@
                     time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                 };
                 
-                // Добавляем сообщение в интерфейс
                 addMessageToChat(message, true);
-                
-                // Очищаем поле ввода
                 input.value = '';
                 
-                // В реальном приложении здесь был бы запрос к серверу
                 if (!messages[currentChat]) {
                     messages[currentChat] = [];
                 }
@@ -954,7 +946,6 @@
         }
 
         function getSenderName(senderId) {
-            // В реальном приложении здесь был бы поиск по ID
             return senderId === currentUser.id ? currentUser.name : 'Другой пользователь';
         }
 
@@ -967,12 +958,7 @@
             alert('Функция видеозвонка будет реализована позже');
         }
 
-        // Функции для мобильной версии
-        function showChatList() {
-            document.querySelector('.container').classList.remove('active-chat');
-        }
-
-        // Функции для троеточия (настроек)
+        // Функции для настроек
         function openSettingsModal() {
             document.getElementById('settingsModal').style.display = 'flex';
         }
@@ -981,10 +967,8 @@
             document.getElementById('settingsModal').style.display = 'none';
         }
 
-        // Функции редактирования профиля
         function openEditProfileModal() {
             closeSettingsModal();
-            // Заполняем текущие данные
             if (currentUser) {
                 const names = currentUser.name.split(' ');
                 document.getElementById('editFirstName').value = names[0] || '';
@@ -1012,7 +996,6 @@
             }
         }
 
-        // Функция смены темы
         function toggleTheme() {
             const body = document.body;
             const themeText = document.getElementById('themeText');
@@ -1028,7 +1011,6 @@
             }
         }
 
-        // Функция загрузки темы
         function loadTheme() {
             const savedTheme = localStorage.getItem('theme');
             const themeText = document.getElementById('themeText');
@@ -1041,7 +1023,6 @@
             }
         }
 
-        // Функция выхода
         function logout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
                 localStorage.removeItem('currentUser');
@@ -1049,21 +1030,28 @@
                 document.getElementById('mainApp').style.display = 'none';
                 document.getElementById('authScreen').style.display = 'flex';
                 closeSettingsModal();
+                
+                // Сбрасываем формы
+                document.getElementById('loginInput').value = '';
+                document.getElementById('passwordInput').value = '';
+                showLogin();
             }
+        }
+
+        function showChatList() {
+            document.querySelector('.container').classList.remove('active-chat');
         }
 
         // Загрузка тестовых данных
         function loadSampleData() {
-            // Тестовые чаты
             chats = [
                 { id: 1, name: 'Алексей', lastMessage: 'Привет! Как дела?', time: '10:30', unread: 2 },
-                { id: 2, name: 'Рабочая группа', lastMessage: 'Мария: Завтра встреча в 10:00', time: '09:15', unread: 0 },
-                { id: 3, name: 'Канал новостей', lastMessage: 'Новое обновление приложения', time: 'Вчера', unread: 5 },
-                { id: 4, name: 'Мария', lastMessage: 'Отправила тебе файл', time: 'Вчера', unread: 0 },
+                { id: 2, name: 'Мария', lastMessage: 'Отправила тебе файл', time: 'Вчера', unread: 0 },
+                { id: 3, name: 'Рабочая группа', lastMessage: 'Мария: Завтра встреча в 10:00', time: '09:15', unread: 0 },
+                { id: 4, name: 'Канал новостей', lastMessage: 'Новое обновление приложения', time: 'Вчера', unread: 5 },
                 { id: 5, name: 'Семья', lastMessage: 'Папа: Кто будет на ужине?', time: '22.05', unread: 0 }
             ];
             
-            // Тестовые сообщения для первого чата
             messages[1] = [
                 { id: 1, text: 'Привет!', sender: 2, time: '10:25' },
                 { id: 2, text: 'Привет! Как дела?', sender: 1, time: '10:26' },
@@ -1071,8 +1059,7 @@
                 { id: 4, text: 'Тоже всё хорошо. Что нового?', sender: 1, time: '10:30' }
             ];
             
-            // Заполняем список чатов
-            const chatsList = document.querySelector('.chats-list');
+            const chatsList = document.getElementById('chatsList');
             chatsList.innerHTML = '';
             
             chats.forEach(chat => {
@@ -1093,11 +1080,6 @@
                 
                 chatsList.appendChild(chatItem);
             });
-            
-            // Выбираем первый чат по умолчанию
-            if (chats.length > 0) {
-                selectChat(chats[0].id);
-            }
         }
     </script>
 </body>
