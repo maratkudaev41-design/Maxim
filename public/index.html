@@ -750,11 +750,12 @@
                 const savedUser = localStorage.getItem('currentUser');
                 if (savedUser) {
                     const user = JSON.parse(savedUser);
+                    // Упрощенная проверка - проверяем только телефон
                     if (user.phone === login) {
                         currentUser = user;
                         showMainApp();
                     } else {
-                        alert('Неверные данные для входа');
+                        alert('Неверный телефон или пользователь не зарегистрирован');
                     }
                 } else {
                     alert('Сначала необходимо зарегистрироваться');
@@ -771,6 +772,16 @@
             const password = document.getElementById('regPassword').value;
             
             if (name && phone && password) {
+                // Проверяем, не зарегистрирован ли уже пользователь с таким телефоном
+                const existingUser = localStorage.getItem('currentUser');
+                if (existingUser) {
+                    const user = JSON.parse(existingUser);
+                    if (user.phone === phone) {
+                        alert('Пользователь с таким телефоном уже зарегистрирован');
+                        return;
+                    }
+                }
+                
                 currentUser = {
                     id: 1,
                     name: name + (lastName ? ' ' + lastName : ''),
@@ -798,6 +809,9 @@
             document.getElementById('mainApp').style.display = 'flex';
             updateUserInfo();
             loadSampleData();
+            
+            // Заполняем поле телефона в форме входа для удобства
+            document.getElementById('loginInput').value = currentUser.phone;
         }
 
         function updateUserInfo() {
@@ -808,6 +822,10 @@
                 if (currentUser.avatar) {
                     document.getElementById('userAvatar').innerHTML = 
                         `<img src="${currentUser.avatar}" alt="Аватар">` +
+                        `<div class="avatar-edit">Изменить</div>`;
+                } else {
+                    document.getElementById('userAvatar').innerHTML = 
+                        `<span>${getInitials(currentUser.name)}</span>` +
                         `<div class="avatar-edit">Изменить</div>`;
                 }
             }
