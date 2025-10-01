@@ -115,6 +115,18 @@
             background: var(--primary-dark);
         }
 
+        .auth-switch {
+            margin-top: 20px;
+            color: var(--text-secondary);
+        }
+
+        .auth-switch a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
         /* Sidebar */
         .sidebar {
             width: 320px;
@@ -137,6 +149,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            cursor: pointer;
         }
 
         .avatar {
@@ -150,6 +163,12 @@
             color: white;
             font-weight: bold;
             font-size: 18px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .avatar.default {
+            background: linear-gradient(45deg, var(--primary), var(--accent)) !important;
         }
 
         .user-details h3 {
@@ -218,6 +237,12 @@
             color: white;
             font-weight: bold;
             font-size: 18px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .chat-avatar.default {
+            background: linear-gradient(45deg, #ff6b6b, #ffa726) !important;
         }
 
         .chat-content {
@@ -244,7 +269,7 @@
 
         .last-message {
             font-size: 13px;
-            color: var(--text-secondary);
+            color: var(--text-secondary;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -446,6 +471,49 @@
             border-color: var(--primary);
         }
 
+        .avatar-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .avatar-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.1);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--primary);
+        }
+
+        .avatar-option.default {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .remove-avatar {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
         .modal-actions {
             padding: 16px 20px;
             border-top: 1px solid var(--border);
@@ -483,13 +551,25 @@
     <div class="auth-screen" id="authScreen">
         <div class="auth-container">
             <div class="auth-logo">NotMax</div>
-            <div class="auth-subtitle">Быстрые сообщения</div>
+            <div class="auth-subtitle">Быстрые сообщения и звонки</div>
             
-            <input type="text" class="auth-input" id="loginUsername" placeholder="Имя пользователя" value="user1">
-            <input type="password" class="auth-input" id="loginPassword" placeholder="Пароль" value="123">
-            <button class="auth-btn" onclick="login()">Войти</button>
-            <div style="margin-top: 20px; color: var(--text-secondary); font-size: 14px;">
-                Для теста: user1/123 или user2/123
+            <div id="loginForm">
+                <input type="text" class="auth-input" id="loginUsername" placeholder="Имя пользователя" required>
+                <input type="password" class="auth-input" id="loginPassword" placeholder="Пароль" required>
+                <button class="auth-btn" onclick="login()">Войти</button>
+                <div class="auth-switch">
+                    Нет аккаунта? <a onclick="showRegister()">Зарегистрироваться</a>
+                </div>
+            </div>
+            
+            <div id="registerForm" style="display: none;">
+                <input type="text" class="auth-input" id="regName" placeholder="Ваше имя" required>
+                <input type="text" class="auth-input" id="regUsername" placeholder="Имя пользователя" required>
+                <input type="password" class="auth-input" id="regPassword" placeholder="Пароль" required>
+                <button class="auth-btn" onclick="register()">Создать аккаунт</button>
+                <div class="auth-switch">
+                    Есть аккаунт? <a onclick="showLogin()">Войти</a>
+                </div>
             </div>
         </div>
     </div>
@@ -498,7 +578,7 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <div class="user-info">
+                <div class="user-info" onclick="openSettings()">
                     <div class="avatar" id="userAvatar">U</div>
                     <div class="user-details">
                         <h3 id="userName">Пользователь</h3>
@@ -509,11 +589,14 @@
             
             <button class="action-button" onclick="showNewChatModal()">
                 <i class="fas fa-plus"></i>
-                Создать чат
+                Создать
             </button>
             
             <div class="chats-list" id="chatsList">
-                <!-- Chats will be loaded here -->
+                <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 16px;"></i>
+                    <p>Нет чатов</p>
+                </div>
             </div>
         </div>
         
@@ -557,16 +640,59 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">Имя пользователя друга</label>
-                    <input type="text" class="form-input" id="friendUsername" placeholder="user2">
+                    <input type="text" class="form-input" id="friendUsername" placeholder="@username друга">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Имя друга</label>
-                    <input type="text" class="form-input" id="friendDisplayName" placeholder="Мария">
+                    <input type="text" class="form-input" id="friendDisplayName" placeholder="Имя друга">
                 </div>
             </div>
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeNewChatModal()">Отмена</button>
                 <button class="btn btn-primary" onclick="createNewChat()">Создать чат</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Настройки профиля</div>
+                <button class="modal-close" onclick="closeSettings()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Аватарка</label>
+                    <div class="avatar-options">
+                        <div class="avatar-option default selected" onclick="selectAvatar('default')">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="avatar-option" style="background: #ff6b6b;" onclick="selectAvatar('#ff6b6b')"></div>
+                        <div class="avatar-option" style="background: #4ecdc4;" onclick="selectAvatar('#4ecdc4')"></div>
+                        <div class="avatar-option" style="background: #45b7d1;" onclick="selectAvatar('#45b7d1')"></div>
+                        <div class="avatar-option" style="background: #96ceb4;" onclick="selectAvatar('#96ceb4')"></div>
+                        <div class="avatar-option" style="background: #feca57;" onclick="selectAvatar('#feca57')"></div>
+                    </div>
+                    <button class="remove-avatar" onclick="removeAvatar()">
+                        <i class="fas fa-trash"></i> Удалить аватарку
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Имя</label>
+                    <input type="text" class="form-input" id="settingsName" placeholder="Ваше имя">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Юзернейм</label>
+                    <input type="text" class="form-input" id="settingsUsername" placeholder="@username">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeSettings()">Отмена</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Сохранить</button>
+                <button class="btn" onclick="logout()" style="background: #ff4757; color: white;">Выйти</button>
             </div>
         </div>
     </div>
@@ -578,6 +704,7 @@
         let currentChat = null;
         let chats = [];
         let socket = null;
+        let selectedAvatar = 'default';
 
         // Инициализация
         function init() {
@@ -589,21 +716,68 @@
         }
 
         // Авторизация
-        function login() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
 
-            if (!username || !password) {
-                alert('Введите логин и пароль');
+        function showLogin() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        function register() {
+            const name = document.getElementById('regName').value.trim();
+            const username = document.getElementById('regUsername').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value;
+
+            if (!name || !username || !password) {
+                alert('Заполните все поля');
                 return;
             }
 
-            currentUser = { 
-                username: username, 
-                name: username === 'user1' ? 'Алексей' : 'Мария',
-                avatar: username === 'user1' ? 'А' : 'М'
+            if (username.length < 3) {
+                alert('Имя пользователя должно быть至少 3 символа');
+                return;
+            }
+
+            // Проверяем существующих пользователей
+            const users = JSON.parse(localStorage.getItem('notmax_users')) || {};
+            if (users[username]) {
+                alert('Пользователь с таким именем уже существует');
+                return;
+            }
+
+            // Создаем пользователя
+            currentUser = {
+                name: name,
+                username: username,
+                password: password,
+                avatar: 'default',
+                avatarColor: null
             };
+
+            // Сохраняем в базу пользователей
+            users[username] = currentUser;
+            localStorage.setItem('notmax_users', JSON.stringify(users));
+            localStorage.setItem('notmax_user', JSON.stringify(currentUser));
             
+            showMessenger();
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+
+            const users = JSON.parse(localStorage.getItem('notmax_users')) || {};
+            const user = users[username];
+
+            if (!user || user.password !== password) {
+                alert('Неверное имя пользователя или пароль');
+                return;
+            }
+
+            currentUser = user;
             localStorage.setItem('notmax_user', JSON.stringify(currentUser));
             showMessenger();
         }
@@ -612,11 +786,96 @@
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('messengerApp').style.display = 'flex';
             
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userAvatar').textContent = currentUser.avatar;
-            
+            updateUserProfile();
             loadChats();
             initSocket();
+        }
+
+        function logout() {
+            localStorage.removeItem('notmax_user');
+            currentUser = null;
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('messengerApp').style.display = 'none';
+            showLogin();
+        }
+
+        // Обновление профиля
+        function updateUserProfile() {
+            if (!currentUser) return;
+            
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userAvatar').textContent = currentUser.avatar === 'default' ? currentUser.name.charAt(0).toUpperCase() : '';
+            
+            // Устанавливаем аватар
+            const userAvatar = document.getElementById('userAvatar');
+            if (currentUser.avatar === 'default') {
+                userAvatar.className = 'avatar default';
+                userAvatar.style.background = '';
+            } else {
+                userAvatar.className = 'avatar';
+                userAvatar.style.background = currentUser.avatar;
+            }
+        }
+
+        // Настройки аватарки
+        function openSettings() {
+            document.getElementById('settingsName').value = currentUser.name;
+            document.getElementById('settingsUsername').value = currentUser.username;
+            selectedAvatar = currentUser.avatar;
+            updateAvatarSelection();
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function selectAvatar(avatar) {
+            selectedAvatar = avatar;
+            updateAvatarSelection();
+        }
+
+        function updateAvatarSelection() {
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            if (selectedAvatar === 'default') {
+                document.querySelector('.avatar-option.default').classList.add('selected');
+            } else {
+                document.querySelector(`.avatar-option[style*="${selectedAvatar}"]`).classList.add('selected');
+            }
+        }
+
+        function removeAvatar() {
+            selectedAvatar = 'default';
+            updateAvatarSelection();
+        }
+
+        function saveSettings() {
+            const newName = document.getElementById('settingsName').value.trim();
+            const newUsername = document.getElementById('settingsUsername').value.trim().toLowerCase();
+
+            if (!newName || !newUsername) {
+                alert('Заполните все поля');
+                return;
+            }
+
+            // Обновляем данные
+            const oldUsername = currentUser.username;
+            currentUser.name = newName;
+            currentUser.username = newUsername;
+            currentUser.avatar = selectedAvatar;
+
+            // Обновляем в базе
+            const users = JSON.parse(localStorage.getItem('notmax_users')) || {};
+            delete users[oldUsername];
+            users[newUsername] = currentUser;
+            localStorage.setItem('notmax_users', JSON.stringify(users));
+            localStorage.setItem('notmax_user', JSON.stringify(currentUser));
+
+            updateUserProfile();
+            closeSettings();
         }
 
         // Socket.io
@@ -628,19 +887,12 @@
                 socket.emit('register', currentUser);
             });
 
-            // Получение сообщения
             socket.on('new-message', (message) => {
                 console.log('📨 New message:', message);
                 
-                // Игнорируем свои же сообщения
                 if (message.from === currentUser.username) return;
                 
-                // Добавляем сообщение в чат
                 addMessageToChat(message.from, message.text, false);
-            });
-
-            socket.on('user-online', (data) => {
-                console.log('👤 User online:', data.username);
             });
         }
 
@@ -650,24 +902,13 @@
             chatsList.innerHTML = '';
 
             if (chats.length === 0) {
-                // Автоматически создаем тестовые чаты
-                if (currentUser.username === 'user1') {
-                    chats.push({
-                        id: '1',
-                        friendName: 'Мария',
-                        friendUsername: 'user2',
-                        friendAvatar: 'М',
-                        messages: []
-                    });
-                } else {
-                    chats.push({
-                        id: '1',
-                        friendName: 'Алексей', 
-                        friendUsername: 'user1',
-                        friendAvatar: 'А',
-                        messages: []
-                    });
-                }
+                chatsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                        <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p>Нет чатов</p>
+                    </div>
+                `;
+                return;
             }
 
             chats.forEach(chat => {
@@ -677,7 +918,7 @@
                 chatItem.onclick = () => selectChat(chat.id);
                 
                 chatItem.innerHTML = `
-                    <div class="chat-avatar">${chat.friendAvatar}</div>
+                    <div class="chat-avatar default">${chat.friendAvatar}</div>
                     <div class="chat-content">
                         <div class="chat-header">
                             <div class="chat-name">${chat.friendName}</div>
@@ -700,7 +941,7 @@
         }
 
         function createNewChat() {
-            const friendUsername = document.getElementById('friendUsername').value.trim();
+            const friendUsername = document.getElementById('friendUsername').value.trim().toLowerCase();
             const friendDisplayName = document.getElementById('friendDisplayName').value.trim();
 
             if (!friendUsername || !friendDisplayName) {
@@ -708,13 +949,11 @@
                 return;
             }
 
-            // Нельзя создать чат с самим собой
             if (friendUsername === currentUser.username) {
                 alert('Нельзя создать чат с самим собой!');
                 return;
             }
 
-            // Проверяем нет ли уже такого чата
             const existingChat = chats.find(chat => chat.friendUsername === friendUsername);
             if (existingChat) {
                 selectChat(existingChat.id);
@@ -769,31 +1008,27 @@
             });
         }
 
-        // Отправка сообщения
+        // Сообщения
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const text = messageInput.value.trim();
             
             if (!text || !currentChat) return;
 
-            // Добавляем в UI
             addMessageToUI(text, true, Date.now());
             
-            // Сохраняем в историю
             currentChat.messages.push({
                 text: text,
                 isSent: true,
                 timestamp: Date.now()
             });
 
-            // Отправляем через сокет
             if (socket) {
                 socket.emit('send-message', {
                     from: currentUser.username,
                     to: currentChat.friendUsername,
                     text: text
                 });
-                console.log('📤 Sent to:', currentChat.friendUsername);
             }
 
             messageInput.value = '';
@@ -801,7 +1036,6 @@
             loadChats();
         }
 
-        // Получение сообщения
         function addMessageToChat(from, text, isSent) {
             const chat = chats.find(c => c.friendUsername === from);
             if (chat) {
@@ -811,7 +1045,6 @@
                     timestamp: Date.now()
                 });
                 
-                // Если этот чат активен - показываем сообщение
                 if (currentChat && currentChat.id === chat.id) {
                     addMessageToUI(text, isSent, Date.now());
                 }
@@ -822,7 +1055,6 @@
         function addMessageToUI(text, isSent, timestamp) {
             const messagesContainer = document.getElementById('messagesContainer');
             
-            // Убираем placeholder если есть
             if (messagesContainer.children.length === 1 && messagesContainer.children[0].querySelector('.fa-comment')) {
                 messagesContainer.innerHTML = '';
             }
@@ -842,7 +1074,7 @@
             return new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
 
-        // Инициализация при загрузке
+        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             const messageInput = document.getElementById('messageInput');
             
