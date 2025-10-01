@@ -824,24 +824,18 @@
         }
 
         // Socket.io
-        function initSocket() {
-            socket = io();
-            
-            socket.on('connect', () => {
-                console.log('Connected to server');
-                socket.emit('register', {
-                    username: currentUser.username,
-                    name: currentUser.name
-                });
-            });
-
-            socket.on('new-message', (message) => {
-                console.log('New message:', message);
-                // Add message to chat
-                addMessageToChat(message.from, message.text, false);
-            });
-        }
-
+       socket.on('new-message', (message) => {
+    console.log('📨 New message received:', message);
+    
+    // Проверяем что сообщение не от нас самих
+    if (message.from === currentUser.username) {
+        console.log('ℹ️ Ignoring message from self');
+        return;
+    }
+    
+    // Add message to chat
+    addMessageToChat(message.from, message.text, false);
+});
         // Chat Management
         function loadChats() {
             const chatsList = document.getElementById('chatsList');
@@ -969,33 +963,44 @@
         }
 
         function sendMessage() {
-            const messageInput = document.getElementById('messageInput');
-            const text = messageInput.value.trim();
-            
-            if (!text || !currentChat) return;
+    const messageInput = document.getElementById('messageInput');
+    const text = messageInput.value.trim();
+    
+    if (!text || !currentChat) return;
 
-            // Add to UI
-            addMessageToUI(text, true, Date.now());
-            
-            // Add to chat history
-            currentChat.messages.push({
-                text: text,
-                isSent: true,
-                timestamp: Date.now()
-            });
+    // Проверяем что чат создан с другим пользователем
+    if (currentChat.friendUsername === currentUser.username) {
+        alert('Нельзя отправлять сообщения самому себе!');
+        return;
+    }
 
-            // Send via socket
-            if (socket) {
-                socket.emit('send-message', {
-                    from: currentUser.username,
-                    to: currentChat.friendUsername,
-                    text: text
-                });
-            }
+    // Add to UI
+    addMessageToUI(text, true, Date.now());
+    
+    // Add to chat history
+    currentChat.messages.push({
+        text: text,
+        isSent: true,
+        timestamp: Date.now(),
+        id: Date.now().toString()
+    });
 
-            messageInput.value = '';
-            loadChats();
-        }
+    // Send via socket
+    if (socket) {
+        socket.emit('send-message', {
+            from: currentUser.username,
+            to: currentChat.friendUsername,
+            text: text
+        });
+        console.log('📤 Sent message to:', currentChat.friendUsername);
+    } else {
+        console.log('❌ Socket not connected');
+    }
+
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    loadChats();
+}
 
         function addMessageToUI(text, isSent, timestamp) {
             const messagesContainer = document.getElementById('messagesContainer');
