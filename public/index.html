@@ -16,7 +16,6 @@
         :root {
             --primary: #0088cc;
             --primary-dark: #0077b3;
-            --secondary: #6c757d;
             --background: #f8f9fa;
             --surface: #ffffff;
             --text-primary: #212529;
@@ -116,17 +115,6 @@
             background: var(--primary-dark);
         }
 
-        .auth-switch {
-            margin-top: 20px;
-            color: var(--text-secondary);
-        }
-
-        .auth-switch a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
         /* Sidebar */
         .sidebar {
             width: 320px;
@@ -149,7 +137,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            cursor: pointer;
         }
 
         .avatar {
@@ -176,61 +163,24 @@
             color: var(--text-secondary);
         }
 
-        .header-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        .action-button {
+            background: var(--accent);
+            color: white;
             border: none;
-            background: var(--background);
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 16px 20px;
         }
 
-        .icon-btn:hover {
-            background: var(--hover);
-            color: var(--primary);
-        }
-
-        .search-container {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 16px 12px 44px;
-            border: none;
-            background: var(--background);
-            border-radius: 24px;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            background: white;
-            box-shadow: 0 0 0 2px var(--primary);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
+        .action-button:hover {
+            background: #00c29a;
+            transform: translateY(-2px);
         }
 
         .chats-list {
@@ -268,18 +218,6 @@
             color: white;
             font-weight: bold;
             font-size: 18px;
-            position: relative;
-        }
-
-        .online-status {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #4caf50;
-            border: 2px solid white;
         }
 
         .chat-content {
@@ -310,27 +248,6 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-
-        .action-button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 16px 20px;
-        }
-
-        .action-button:hover {
-            background: #00c29a;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 212, 170, 0.3);
         }
 
         /* Chat Area */
@@ -365,11 +282,6 @@
         .chat-status {
             font-size: 13px;
             color: var(--text-secondary);
-        }
-
-        .chat-actions {
-            display: flex;
-            gap: 8px;
         }
 
         .messages-container {
@@ -455,10 +367,9 @@
 
         .send-button:hover {
             background: var(--primary-dark);
-            transform: scale(1.05);
         }
 
-        /* Modals */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -565,21 +476,6 @@
             background: var(--background);
             color: var(--text-primary);
         }
-
-        .btn-secondary:hover {
-            background: var(--hover);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .messenger-app {
-                height: 100vh;
-                border-radius: 0;
-            }
-            body {
-                padding: 0;
-            }
-        }
     </style>
 </head>
 <body>
@@ -587,25 +483,13 @@
     <div class="auth-screen" id="authScreen">
         <div class="auth-container">
             <div class="auth-logo">NotMax</div>
-            <div class="auth-subtitle">Быстрые сообщения и звонки</div>
+            <div class="auth-subtitle">Быстрые сообщения</div>
             
-            <div id="loginForm">
-                <input type="text" class="auth-input" id="loginUsername" placeholder="Имя пользователя" required>
-                <input type="password" class="auth-input" id="loginPassword" placeholder="Пароль" required>
-                <button class="auth-btn" onclick="login()">Войти</button>
-                <div class="auth-switch">
-                    Нет аккаунта? <a href="#" onclick="showRegister()">Зарегистрироваться</a>
-                </div>
-            </div>
-            
-            <div id="registerForm" style="display: none;">
-                <input type="text" class="auth-input" id="regName" placeholder="Ваше имя" required>
-                <input type="text" class="auth-input" id="regUsername" placeholder="Имя пользователя" required>
-                <input type="password" class="auth-input" id="regPassword" placeholder="Пароль" required>
-                <button class="auth-btn" onclick="register()">Создать аккаунт</button>
-                <div class="auth-switch">
-                    Есть аккаунт? <a href="#" onclick="showLogin()">Войти</a>
-                </div>
+            <input type="text" class="auth-input" id="loginUsername" placeholder="Имя пользователя" value="user1">
+            <input type="password" class="auth-input" id="loginPassword" placeholder="Пароль" value="123">
+            <button class="auth-btn" onclick="login()">Войти</button>
+            <div style="margin-top: 20px; color: var(--text-secondary); font-size: 14px;">
+                Для теста: user1/123 или user2/123
             </div>
         </div>
     </div>
@@ -614,35 +498,23 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <div class="user-info" onclick="openSettings()">
+                <div class="user-info">
                     <div class="avatar" id="userAvatar">U</div>
                     <div class="user-details">
                         <h3 id="userName">Пользователь</h3>
                         <p>online</p>
                     </div>
                 </div>
-                <div class="header-actions">
-                    <button class="icon-btn" onclick="showNewChatModal()">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="search-container">
-                <div class="search-box">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="ПОИСК" id="searchInput">
-                </div>
-            </div>
-            
-            <div class="chats-list" id="chatsList">
-                <!-- Chats will be loaded here -->
             </div>
             
             <button class="action-button" onclick="showNewChatModal()">
                 <i class="fas fa-plus"></i>
-                Создать
+                Создать чат
             </button>
+            
+            <div class="chats-list" id="chatsList">
+                <!-- Chats will be loaded here -->
+            </div>
         </div>
         
         <!-- Chat Area -->
@@ -655,14 +527,6 @@
                         <div class="chat-status" id="currentChatStatus">Начните общение</div>
                     </div>
                 </div>
-                <div class="chat-actions">
-                    <button class="icon-btn" onclick="startCall(false)">
-                        <i class="fas fa-phone-alt"></i>
-                    </button>
-                    <button class="icon-btn" onclick="startCall(true)">
-                        <i class="fas fa-video"></i>
-                    </button>
-                </div>
             </div>
             
             <div class="messages-container" id="messagesContainer">
@@ -673,13 +537,7 @@
             </div>
             
             <div class="input-container" id="inputContainer" style="display: none;">
-                <button class="icon-btn">
-                    <i class="fas fa-paperclip"></i>
-                </button>
                 <textarea class="message-input" placeholder="Введите сообщение..." rows="1" id="messageInput"></textarea>
-                <button class="icon-btn">
-                    <i class="far fa-smile"></i>
-                </button>
                 <button class="send-button" onclick="sendMessage()">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -699,11 +557,11 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">Имя пользователя друга</label>
-                    <input type="text" class="form-input" id="friendUsername" placeholder="@username друга">
+                    <input type="text" class="form-input" id="friendUsername" placeholder="user2">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Имя друга</label>
-                    <input type="text" class="form-input" id="friendDisplayName" placeholder="Имя друга">
+                    <input type="text" class="form-input" id="friendDisplayName" placeholder="Мария">
                 </div>
             </div>
             <div class="modal-actions">
@@ -713,44 +571,16 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal" id="settingsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Настройки</div>
-                <button class="modal-close" onclick="closeSettings()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Имя</label>
-                    <input type="text" class="form-input" id="settingsName" placeholder="Ваше имя">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Юзернейм</label>
-                    <input type="text" class="form-input" id="settingsUsername" placeholder="@username">
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeSettings()">Отмена</button>
-                <button class="btn btn-primary" onclick="saveSettings()">Сохранить</button>
-                <button class="btn" onclick="logout()" style="background: #ff4757; color: white;">Выйти</button>
-            </div>
-        </div>
-    </div>
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // User Management
+        // Глобальные переменные
         let currentUser = null;
         let currentChat = null;
         let chats = [];
         let socket = null;
 
-        // Initialize
+        // Инициализация
         function init() {
-            // Check if user is logged in
             const savedUser = localStorage.getItem('notmax_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -758,92 +588,86 @@
             }
         }
 
-        // Auth Functions
-        function showRegister() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'block';
-        }
+        // Авторизация
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
 
-        function showLogin() {
-            document.getElementById('registerForm').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
-        }
-
-        function register() {
-            const name = document.getElementById('regName').value.trim();
-            const username = document.getElementById('regUsername').value.trim().toLowerCase();
-            const password = document.getElementById('regPassword').value;
-
-            if (!name || !username || !password) {
-                alert('Заполните все поля');
+            if (!username || !password) {
+                alert('Введите логин и пароль');
                 return;
             }
 
-            // Save user
-            currentUser = { name, username, password, avatar: name.charAt(0).toUpperCase() };
-            localStorage.setItem('notmax_user', JSON.stringify(currentUser));
+            currentUser = { 
+                username: username, 
+                name: username === 'user1' ? 'Алексей' : 'Мария',
+                avatar: username === 'user1' ? 'А' : 'М'
+            };
             
+            localStorage.setItem('notmax_user', JSON.stringify(currentUser));
             showMessenger();
-        }
-
-        function login() {
-            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
-            const password = document.getElementById('loginPassword').value;
-
-            // Simple validation
-            if (username === 'admin' && password === 'admin') {
-                currentUser = { name: 'Admin', username: 'admin', avatar: 'A' };
-                localStorage.setItem('notmax_user', JSON.stringify(currentUser));
-                showMessenger();
-            } else {
-                alert('Неверные данные. Используйте admin/admin для теста');
-            }
         }
 
         function showMessenger() {
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('messengerApp').style.display = 'flex';
             
-            // Update UI
             document.getElementById('userName').textContent = currentUser.name;
             document.getElementById('userAvatar').textContent = currentUser.avatar;
             
-            // Load chats
             loadChats();
-            
-            // Connect to server
             initSocket();
         }
 
-        function logout() {
-            localStorage.removeItem('notmax_user');
-            currentUser = null;
-            document.getElementById('authScreen').style.display = 'flex';
-            document.getElementById('messengerApp').style.display = 'none';
-            showLogin();
+        // Socket.io
+        function initSocket() {
+            socket = io();
+            
+            socket.on('connect', () => {
+                console.log('✅ Connected to server as:', currentUser.username);
+                socket.emit('register', currentUser);
+            });
+
+            // Получение сообщения
+            socket.on('new-message', (message) => {
+                console.log('📨 New message:', message);
+                
+                // Игнорируем свои же сообщения
+                if (message.from === currentUser.username) return;
+                
+                // Добавляем сообщение в чат
+                addMessageToChat(message.from, message.text, false);
+            });
+
+            socket.on('user-online', (data) => {
+                console.log('👤 User online:', data.username);
+            });
         }
 
-        // Socket.io
-       socket.on('new-message', (message) => {
-    console.log('📨 New message received:', message);
-    
-    // Проверяем что сообщение не от нас самих
-    if (message.from === currentUser.username) {
-        console.log('ℹ️ Ignoring message from self');
-        return;
-    }
-    
-    // Add message to chat
-    addMessageToChat(message.from, message.text, false);
-});
-        // Chat Management
+        // Управление чатами
         function loadChats() {
             const chatsList = document.getElementById('chatsList');
             chatsList.innerHTML = '';
 
             if (chats.length === 0) {
-                chatsList.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Нет чатов</div>';
-                return;
+                // Автоматически создаем тестовые чаты
+                if (currentUser.username === 'user1') {
+                    chats.push({
+                        id: '1',
+                        friendName: 'Мария',
+                        friendUsername: 'user2',
+                        friendAvatar: 'М',
+                        messages: []
+                    });
+                } else {
+                    chats.push({
+                        id: '1',
+                        friendName: 'Алексей', 
+                        friendUsername: 'user1',
+                        friendAvatar: 'А',
+                        messages: []
+                    });
+                }
             }
 
             chats.forEach(chat => {
@@ -876,45 +700,28 @@
         }
 
         function createNewChat() {
-    const friendUsername = document.getElementById('friendUsername').value.trim().toLowerCase();
-    const friendDisplayName = document.getElementById('friendDisplayName').value.trim();
+            const friendUsername = document.getElementById('friendUsername').value.trim();
+            const friendDisplayName = document.getElementById('friendDisplayName').value.trim();
 
-    if (!friendUsername || !friendDisplayName) {
-        alert('Заполните все поля');
-        return;
-    }
+            if (!friendUsername || !friendDisplayName) {
+                alert('Заполните все поля');
+                return;
+            }
 
-    // Проверяем что не создаем чат с самим собой
-    if (friendUsername === currentUser.username) {
-        alert('Нельзя создать чат с самим собой!');
-        return;
-    }
+            // Нельзя создать чат с самим собой
+            if (friendUsername === currentUser.username) {
+                alert('Нельзя создать чат с самим собой!');
+                return;
+            }
 
-    // Проверяем нет ли уже такого чата
-    const existingChat = chats.find(chat => chat.friendUsername === friendUsername);
-    if (existingChat) {
-        alert('Чат с этим пользователем уже существует');
-        selectChat(existingChat.id);
-        closeNewChatModal();
-        return;
-    }
+            // Проверяем нет ли уже такого чата
+            const existingChat = chats.find(chat => chat.friendUsername === friendUsername);
+            if (existingChat) {
+                selectChat(existingChat.id);
+                closeNewChatModal();
+                return;
+            }
 
-    const newChat = {
-        id: Date.now().toString(),
-        friendName: friendDisplayName,
-        friendUsername: friendUsername,
-        friendAvatar: friendDisplayName.charAt(0).toUpperCase(),
-        messages: []
-    };
-
-    chats.push(newChat);
-    closeNewChatModal();
-    loadChats();
-    selectChat(newChat.id);
-    
-    // Добавляем тестовое сообщение
-    addMessageToChat(friendUsername, `Привет! Я ${friendDisplayName}`, false);
-}
             const newChat = {
                 id: Date.now().toString(),
                 friendName: friendDisplayName,
@@ -962,50 +769,60 @@
             });
         }
 
+        // Отправка сообщения
         function sendMessage() {
-    const messageInput = document.getElementById('messageInput');
-    const text = messageInput.value.trim();
-    
-    if (!text || !currentChat) return;
+            const messageInput = document.getElementById('messageInput');
+            const text = messageInput.value.trim();
+            
+            if (!text || !currentChat) return;
 
-    // Проверяем что чат создан с другим пользователем
-    if (currentChat.friendUsername === currentUser.username) {
-        alert('Нельзя отправлять сообщения самому себе!');
-        return;
-    }
+            // Добавляем в UI
+            addMessageToUI(text, true, Date.now());
+            
+            // Сохраняем в историю
+            currentChat.messages.push({
+                text: text,
+                isSent: true,
+                timestamp: Date.now()
+            });
 
-    // Add to UI
-    addMessageToUI(text, true, Date.now());
-    
-    // Add to chat history
-    currentChat.messages.push({
-        text: text,
-        isSent: true,
-        timestamp: Date.now(),
-        id: Date.now().toString()
-    });
+            // Отправляем через сокет
+            if (socket) {
+                socket.emit('send-message', {
+                    from: currentUser.username,
+                    to: currentChat.friendUsername,
+                    text: text
+                });
+                console.log('📤 Sent to:', currentChat.friendUsername);
+            }
 
-    // Send via socket
-    if (socket) {
-        socket.emit('send-message', {
-            from: currentUser.username,
-            to: currentChat.friendUsername,
-            text: text
-        });
-        console.log('📤 Sent message to:', currentChat.friendUsername);
-    } else {
-        console.log('❌ Socket not connected');
-    }
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            loadChats();
+        }
 
-    messageInput.value = '';
-    messageInput.style.height = 'auto';
-    loadChats();
-}
+        // Получение сообщения
+        function addMessageToChat(from, text, isSent) {
+            const chat = chats.find(c => c.friendUsername === from);
+            if (chat) {
+                chat.messages.push({ 
+                    text, 
+                    isSent, 
+                    timestamp: Date.now()
+                });
+                
+                // Если этот чат активен - показываем сообщение
+                if (currentChat && currentChat.id === chat.id) {
+                    addMessageToUI(text, isSent, Date.now());
+                }
+                loadChats();
+            }
+        }
 
         function addMessageToUI(text, isSent, timestamp) {
             const messagesContainer = document.getElementById('messagesContainer');
             
-            // Clear placeholder
+            // Убираем placeholder если есть
             if (messagesContainer.children.length === 1 && messagesContainer.children[0].querySelector('.fa-comment')) {
                 messagesContainer.innerHTML = '';
             }
@@ -1021,59 +838,11 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function addMessageToChat(from, text, isSent) {
-            const chat = chats.find(c => c.friendUsername === from);
-            if (chat) {
-                chat.messages.push({ text, isSent, timestamp: Date.now() });
-                if (currentChat && currentChat.id === chat.id) {
-                    addMessageToUI(text, isSent, Date.now());
-                }
-                loadChats();
-            }
-        }
-
         function formatTime(timestamp) {
             return new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
 
-        // Settings
-        function openSettings() {
-            document.getElementById('settingsName').value = currentUser.name;
-            document.getElementById('settingsUsername').value = currentUser.username;
-            document.getElementById('settingsModal').classList.add('active');
-        }
-
-        function closeSettings() {
-            document.getElementById('settingsModal').classList.remove('active');
-        }
-
-        function saveSettings() {
-            const newName = document.getElementById('settingsName').value.trim();
-            const newUsername = document.getElementById('settingsUsername').value.trim().toLowerCase();
-
-            if (!newName || !newUsername) return;
-
-            currentUser.name = newName;
-            currentUser.username = newUsername;
-            currentUser.avatar = newName.charAt(0).toUpperCase();
-            
-            localStorage.setItem('notmax_user', JSON.stringify(currentUser));
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userAvatar').textContent = currentUser.avatar;
-            
-            closeSettings();
-        }
-
-        // WebRTC (simplified)
-        function startCall(isVideo) {
-            if (!currentChat) {
-                alert('Выберите чат для звонка');
-                return;
-            }
-            alert(`Звонок ${currentChat.friendName}... (WebRTC будет реализован позже)`);
-        }
-
-        // Initialize app
+        // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function() {
             const messageInput = document.getElementById('messageInput');
             
