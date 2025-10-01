@@ -6,6 +6,7 @@
     <title>NotMax - Мессенджер</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Все стили остаются такими же как в предыдущем коде */
         :root {
             --primary-color: #3390ec;
             --secondary-color: #2b5278;
@@ -638,7 +639,7 @@
         <div class="auth-form">
             <h2 id="authTitle">Вход в NotMax</h2>
             <div id="loginForm">
-                <input type="text" placeholder="Телефон или @username" id="loginInput">
+                <input type="text" placeholder="@username или телефон" id="loginInput">
                 <input type="password" placeholder="Пароль" id="passwordInput">
                 <button onclick="login()">Войти</button>
                 <div class="auth-switch">
@@ -646,21 +647,11 @@
                 </div>
             </div>
             <div id="registerForm" style="display: none;">
-                <input type="text" placeholder="Имя (минимум 3 символа)" id="regName" minlength="3">
-                <div class="error-message" id="nameError">Имя должно содержать минимум 3 символа</div>
-                
-                <input type="text" placeholder="Фамилия (минимум 4 символа)" id="regLastName" minlength="4">
-                <div class="error-message" id="lastNameError">Фамилия должна содержать минимум 4 символа</div>
-                
+                <input type="text" placeholder="Имя" id="regName">
+                <input type="text" placeholder="Фамилия" id="regLastName">
                 <input type="text" placeholder="@username (уникальный)" id="regUsername">
-                <div class="error-message" id="usernameError">Введите уникальный @username</div>
-                
-                <input type="tel" placeholder="Телефон (только цифры)" id="regPhone" pattern="[0-9]*" inputmode="numeric">
-                <div class="error-message" id="phoneError">Введите корректный номер телефона</div>
-                
-                <input type="password" placeholder="Пароль (минимум 4 символа)" id="regPassword" minlength="4">
-                <div class="error-message" id="passwordError">Пароль должен содержать минимум 4 символа</div>
-                
+                <input type="tel" placeholder="Телефон" id="regPhone">
+                <input type="password" placeholder="Пароль" id="regPassword">
                 <button onclick="register()">Зарегистрироваться</button>
                 <div class="auth-switch">
                     Уже есть аккаунт? <span onclick="showLogin()">Войти</span>
@@ -786,6 +777,7 @@
                 <div class="empty-state">
                     <i class="fas fa-users"></i>
                     <p>Введите @username для поиска</p>
+                    <p style="font-size: 12px; margin-top: 5px;">Пример: @mehh или @alex</p>
                 </div>
             </div>
         </div>
@@ -855,23 +847,18 @@
         let messages = {};
         let allUsers = [];
         let callActive = false;
-        let callIncoming = false;
-
-        // URL вашего бэкенда на Render
-        const API_BASE_URL = 'https://your-app-name.onrender.com/api';
 
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthStatus();
             loadTheme();
+            initializeDemoUsers();
             
             document.getElementById('messageInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     sendMessage();
                 }
             });
-
-            setupValidation();
             
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('modal')) {
@@ -880,47 +867,78 @@
             });
         });
 
-        function setupValidation() {
-            const nameInput = document.getElementById('regName');
-            const lastNameInput = document.getElementById('regLastName');
-            const usernameInput = document.getElementById('regUsername');
-            const phoneInput = document.getElementById('regPhone');
-            const passwordInput = document.getElementById('regPassword');
+        // Инициализация демо-пользователей
+        function initializeDemoUsers() {
+            const demoUsers = [
+                {
+                    id: 2,
+                    name: "Алексей Иванов",
+                    username: "alex",
+                    phone: "79123456789",
+                    avatar: null
+                },
+                {
+                    id: 3, 
+                    name: "Мария Петрова",
+                    username: "masha",
+                    phone: "79123456780",
+                    avatar: null
+                },
+                {
+                    id: 4,
+                    name: "Иван Сидоров", 
+                    username: "ivan",
+                    phone: "79123456781",
+                    avatar: null
+                },
+                {
+                    id: 5,
+                    name: "Екатерина Козлова",
+                    username: "kate",
+                    phone: "79123456782", 
+                    avatar: null
+                },
+                {
+                    id: 6,
+                    name: "Дмитрий Смирнов",
+                    username: "dima",
+                    phone: "79123456783",
+                    avatar: null
+                },
+                {
+                    id: 7,
+                    name: "Анна Волкова",
+                    username: "anna", 
+                    phone: "79123456784",
+                    avatar: null
+                },
+                {
+                    id: 8,
+                    name: "Сергей Попов",
+                    username: "serg",
+                    phone: "79123456785",
+                    avatar: null
+                },
+                {
+                    id: 9,
+                    name: "Ольга Новикова",
+                    username: "olga",
+                    phone: "79123456786",
+                    avatar: null
+                },
+                {
+                    id: 10,
+                    name: "Максим Федоров",
+                    username: "max",
+                    phone: "79123456787",
+                    avatar: null
+                }
+            ];
 
-            nameInput.addEventListener('input', function() {
-                validateField(nameInput, 'nameError', nameInput.value.length >= 3, 'Имя должно содержать минимум 3 символа');
-            });
-
-            lastNameInput.addEventListener('input', function() {
-                validateField(lastNameInput, 'lastNameError', lastNameInput.value.length >= 4, 'Фамилия должна содержать минимум 4 символа');
-            });
-
-            usernameInput.addEventListener('input', function() {
-                const username = usernameInput.value.trim();
-                const isValid = username.length >= 3 && username.startsWith('@');
-                validateField(usernameInput, 'usernameError', isValid, 'Username должен начинаться с @ и содержать минимум 3 символа');
-            });
-
-            phoneInput.addEventListener('input', function() {
-                const phone = phoneInput.value.replace(/\D/g, '');
-                phoneInput.value = phone;
-                validateField(phoneInput, 'phoneError', phone.length >= 10, 'Введите корректный номер телефона (минимум 10 цифр)');
-            });
-
-            passwordInput.addEventListener('input', function() {
-                validateField(passwordInput, 'passwordError', passwordInput.value.length >= 4, 'Пароль должен содержать минимум 4 символа');
-            });
-        }
-
-        function validateField(input, errorId, isValid, errorMessage) {
-            const errorElement = document.getElementById(errorId);
-            if (!isValid && input.value.length > 0) {
-                errorElement.textContent = errorMessage;
-                errorElement.style.display = 'block';
-                input.style.border = '1px solid #ff6b6b';
-            } else {
-                errorElement.style.display = 'none';
-                input.style.border = 'none';
+            // Сохраняем демо-пользователей в localStorage
+            const existingUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            if (existingUsers.length === 0) {
+                localStorage.setItem('allUsers', JSON.stringify(demoUsers));
             }
         }
 
@@ -929,7 +947,6 @@
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
             document.getElementById('authTitle').textContent = 'Регистрация в NotMax';
-            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
         }
 
         function showLogin() {
@@ -938,153 +955,71 @@
             document.getElementById('authTitle').textContent = 'Вход в NotMax';
         }
 
-        function validateRegistration() {
-            const name = document.getElementById('regName').value.trim();
-            const lastName = document.getElementById('regLastName').value.trim();
-            const username = document.getElementById('regUsername').value.trim();
-            const phone = document.getElementById('regPhone').value;
-            const password = document.getElementById('regPassword').value;
-
-            let isValid = true;
-
-            if (name.length < 3) {
-                document.getElementById('nameError').style.display = 'block';
-                document.getElementById('regName').style.border = '1px solid #ff6b6b';
-                isValid = false;
-            }
-
-            if (lastName.length < 4) {
-                document.getElementById('lastNameError').style.display = 'block';
-                document.getElementById('regLastName').style.border = '1px solid #ff6b6b';
-                isValid = false;
-            }
-
-            if (!username.startsWith('@') || username.length < 3) {
-                document.getElementById('usernameError').style.display = 'block';
-                document.getElementById('regUsername').style.border = '1px solid #ff6b6b';
-                isValid = false;
-            }
-
-            if (phone.length < 10) {
-                document.getElementById('phoneError').style.display = 'block';
-                document.getElementById('regPhone').style.border = '1px solid #ff6b6b';
-                isValid = false;
-            }
-
-            if (password.length < 4) {
-                document.getElementById('passwordError').style.display = 'block';
-                document.getElementById('regPassword').style.border = '1px solid #ff6b6b';
-                isValid = false;
-            }
-
-            return isValid;
-        }
-
         async function login() {
-            const loginInput = document.getElementById('loginInput').value;
+            const loginInput = document.getElementById('loginInput').value.trim();
             const password = document.getElementById('passwordInput').value;
             
-            if (loginInput && password) {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            login: loginInput,
-                            password: password
-                        })
-                    });
-
-                    if (response.ok) {
-                        const user = await response.json();
-                        currentUser = user;
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        showMainApp();
-                    } else {
-                        alert('Неверные данные для входа');
-                    }
-                } catch (error) {
-                    console.error('Ошибка входа:', error);
-                    // Fallback на локальные данные
-                    const savedUser = localStorage.getItem('currentUser');
-                    if (savedUser) {
-                        const user = JSON.parse(savedUser);
-                        if (user.username === loginInput.replace('@', '') || user.phone === loginInput) {
-                            currentUser = user;
-                            showMainApp();
-                        } else {
-                            alert('Неверные данные для входа');
-                        }
-                    } else {
-                        alert('Сначала необходимо зарегистрироваться');
-                    }
-                }
-            } else {
+            if (!loginInput || !password) {
                 alert('Пожалуйста, заполните все поля');
+                return;
+            }
+
+            // Ищем пользователя в localStorage
+            const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            const user = allUsers.find(u => 
+                u.username === loginInput.replace('@', '') || 
+                u.phone === loginInput
+            );
+
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showMainApp();
+            } else {
+                alert('Пользователь не найден. Зарегистрируйтесь сначала.');
             }
         }
 
         async function register() {
-            if (!validateRegistration()) {
-                alert('Пожалуйста, исправьте ошибки в форме');
-                return;
-            }
-
             const name = document.getElementById('regName').value.trim();
             const lastName = document.getElementById('regLastName').value.trim();
             const username = document.getElementById('regUsername').value.trim().replace('@', '');
-            const phone = document.getElementById('regPhone').value;
+            const phone = document.getElementById('regPhone').value.trim();
             const password = document.getElementById('regPassword').value;
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: name + ' ' + lastName,
-                        username: username,
-                        phone: phone,
-                        password: password
-                    })
-                });
 
-                if (response.ok) {
-                    const user = await response.json();
-                    currentUser = user;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    showMainApp();
-                } else {
-                    const error = await response.json();
-                    alert(error.message || 'Ошибка регистрации');
-                }
-            } catch (error) {
-                console.error('Ошибка регистрации:', error);
-                // Fallback на локальные данные
-                const existingUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
-                const userExists = existingUsers.find(u => u.username === username || u.phone === phone);
-                
-                if (userExists) {
-                    alert('Пользователь с таким username или телефоном уже зарегистрирован');
-                    return;
-                }
-                
-                currentUser = {
-                    id: Date.now(),
-                    name: name + ' ' + lastName,
-                    username: username,
-                    phone: phone,
-                    avatar: null
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                existingUsers.push(currentUser);
-                localStorage.setItem('allUsers', JSON.stringify(existingUsers));
-                showMainApp();
+            if (!name || !username || !phone || !password) {
+                alert('Пожалуйста, заполните все обязательные поля');
+                return;
             }
+
+            if (!username.startsWith('@') && document.getElementById('regUsername').value.includes('@')) {
+                username = username.replace('@', '');
+            }
+
+            // Проверяем, нет ли уже пользователя с таким username или телефоном
+            const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            const existingUser = allUsers.find(u => u.username === username || u.phone === phone);
+            
+            if (existingUser) {
+                alert('Пользователь с таким username или телефоном уже существует');
+                return;
+            }
+
+            // Создаем нового пользователя
+            const newUser = {
+                id: Date.now(),
+                name: name + ' ' + lastName,
+                username: username,
+                phone: phone,
+                avatar: null
+            };
+
+            allUsers.push(newUser);
+            localStorage.setItem('allUsers', JSON.stringify(allUsers));
+            
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showMainApp();
         }
 
         function checkAuthStatus() {
@@ -1146,6 +1081,15 @@
                 reader.onload = function(event) {
                     currentUser.avatar = event.target.result;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Обновляем аватар во всех пользователях
+                    const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+                    const userIndex = allUsers.findIndex(u => u.id === currentUser.id);
+                    if (userIndex !== -1) {
+                        allUsers[userIndex].avatar = currentUser.avatar;
+                        localStorage.setItem('allUsers', JSON.stringify(allUsers));
+                    }
+                    
                     updateUserInfo();
                     closeAvatarModal();
                 }
@@ -1157,6 +1101,14 @@
             if (confirm('Удалить аватарку?')) {
                 currentUser.avatar = null;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+                const userIndex = allUsers.findIndex(u => u.id === currentUser.id);
+                if (userIndex !== -1) {
+                    allUsers[userIndex].avatar = null;
+                    localStorage.setItem('allUsers', JSON.stringify(allUsers));
+                }
+                
                 updateUserInfo();
                 closeAvatarModal();
             }
@@ -1172,35 +1124,35 @@
             document.getElementById('newChatModal').style.display = 'none';
         }
 
-        async function loadAllUsers() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/users`);
-                if (response.ok) {
-                    allUsers = await response.json();
-                    allUsers = allUsers.filter(user => user.id !== currentUser.id);
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки пользователей:', error);
-                // Fallback на локальные данные
-                const savedUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
-                allUsers = savedUsers.filter(user => user.id !== currentUser.id);
-            }
+        function loadAllUsers() {
+            allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+            // Исключаем текущего пользователя
+            allUsers = allUsers.filter(user => user.id !== currentUser.id);
         }
 
         function searchUsers() {
-            const searchTerm = document.getElementById('userSearchInput').value.toLowerCase();
+            const searchTerm = document.getElementById('userSearchInput').value.toLowerCase().trim();
             const resultsContainer = document.getElementById('userSearchResults');
             
             if (searchTerm.length < 1) {
-                resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Введите @username для поиска</p></div>';
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <p>Введите @username для поиска</p>
+                        <p style="font-size: 12px; margin-top: 5px;">Пример: @mehh или @alex</p>
+                    </div>
+                `;
                 return;
             }
 
-            const filteredUsers = allUsers.filter(user => 
-                user.username.toLowerCase().includes(searchTerm.replace('@', '')) ||
-                user.name.toLowerCase().includes(searchTerm) ||
-                (user.username && `@${user.username}`.toLowerCase().includes(searchTerm))
-            );
+            const filteredUsers = allUsers.filter(user => {
+                const searchText = searchTerm.startsWith('@') ? searchTerm.slice(1) : searchTerm;
+                return (
+                    user.username.toLowerCase().includes(searchText) ||
+                    user.name.toLowerCase().includes(searchTerm) ||
+                    user.phone.includes(searchTerm)
+                );
+            });
 
             displayUserSearchResults(filteredUsers);
         }
@@ -1209,7 +1161,13 @@
             const resultsContainer = document.getElementById('userSearchResults');
             
             if (users.length === 0) {
-                resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>Пользователи не найдены</p></div>';
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-slash"></i>
+                        <p>Пользователи не найдены</p>
+                        <p style="font-size: 12px; margin-top: 5px;">Попробуйте другой username</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -1236,92 +1194,43 @@
             });
         }
 
-        async function createChatWithUser(user) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/chats`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentUser.token}`
-                    },
-                    body: JSON.stringify({
-                        participantId: user.id,
-                        type: 'private'
-                    })
-                });
+        function createChatWithUser(user) {
+            // Проверяем, нет ли уже чата с этим пользователем
+            const existingChat = chats.find(chat => 
+                chat.participant && chat.participant.id === user.id
+            );
 
-                let chat;
-                if (response.ok) {
-                    chat = await response.json();
-                } else {
-                    chat = {
-                        id: Date.now(),
-                        name: user.username ? `@${user.username}` : user.name,
-                        participant: user,
-                        participants: [currentUser.id, user.id],
-                        type: 'private',
-                        lastMessage: '',
-                        time: new Date().toLocaleTimeString()
-                    };
-                }
-
-                // Проверяем, нет ли уже такого чата
-                const existingChat = chats.find(c => 
-                    c.participants && c.participants.includes(user.id)
-                );
-
-                if (!existingChat) {
-                    chats.push(chat);
-                }
-
-                closeNewChatModal();
-                selectChat(chat.id);
-                updateChatsList();
-                
-            } catch (error) {
-                console.error('Ошибка создания чата:', error);
-                const chat = {
+            let chat;
+            if (existingChat) {
+                chat = existingChat;
+            } else {
+                chat = {
                     id: Date.now(),
                     name: user.username ? `@${user.username}` : user.name,
                     participant: user,
                     participants: [currentUser.id, user.id],
                     type: 'private',
                     lastMessage: '',
-                    time: new Date().toLocaleTimeString()
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                 };
+                chats.push(chat);
                 
-                const existingChat = chats.find(c => 
-                    c.participants && c.participants.includes(user.id)
-                );
-
-                if (!existingChat) {
-                    chats.push(chat);
-                }
-
-                closeNewChatModal();
-                selectChat(chat.id);
-                updateChatsList();
+                // Сохраняем чаты в localStorage
+                localStorage.setItem('chats', JSON.stringify(chats));
             }
+
+            closeNewChatModal();
+            selectChat(chat.id);
+            updateChatsList();
         }
 
-        async function loadChats() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/chats`, {
-                    headers: {
-                        'Authorization': `Bearer ${currentUser.token}`
-                    }
-                });
-                
-                if (response.ok) {
-                    chats = await response.json();
-                } else {
-                    chats = []; // Пустой список чатов
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки чатов:', error);
-                chats = []; // Пустой список чатов
+        function loadChats() {
+            const savedChats = localStorage.getItem('chats');
+            if (savedChats) {
+                chats = JSON.parse(savedChats);
+            } else {
+                chats = [];
             }
-            
             updateChatsList();
         }
 
@@ -1339,9 +1248,20 @@
             
             if (chatList.length === 0) {
                 if (chats.length === 0) {
-                    chatsList.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><p>У вас пока нет чатов</p><p style="font-size: 14px; margin-top: 10px;">Начните общение, найдя друзей через поиск</p></div>';
+                    chatsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-comments"></i>
+                            <p>У вас пока нет чатов</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Начните общение, найдя друзей через поиск</p>
+                        </div>
+                    `;
                 } else {
-                    chatsList.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Чаты не найдены</p></div>';
+                    chatsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <p>Чаты не найдены</p>
+                        </div>
+                    `;
                 }
                 return;
             }
@@ -1367,112 +1287,83 @@
             });
         }
 
-        async function selectChat(chatId) {
+        function selectChat(chatId) {
             currentChat = chatId;
             updateChatInterface();
             
             document.getElementById('messageInput').disabled = false;
             document.querySelector('.send-btn').disabled = false;
             
-            await loadMessages(chatId);
+            loadMessages(chatId);
             
             if (window.innerWidth <= 768) {
                 document.querySelector('.container').classList.add('active-chat');
             }
         }
 
-        async function loadMessages(chatId) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/chats/${chatId}/messages`, {
-                    headers: {
-                        'Authorization': `Bearer ${currentUser.token}`
-                    }
-                });
-                
-                if (response.ok) {
-                    messages[chatId] = await response.json();
-                } else {
-                    messages[chatId] = [];
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки сообщений:', error);
+        function loadMessages(chatId) {
+            const savedMessages = localStorage.getItem('messages');
+            if (savedMessages) {
+                const allMessages = JSON.parse(savedMessages);
+                messages[chatId] = allMessages.filter(msg => msg.chatId === chatId);
+            } else {
                 messages[chatId] = [];
             }
-            
             updateChatInterface();
         }
 
-        async function sendMessage() {
+        function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
             if (text && currentChat) {
                 const message = {
+                    id: Date.now(),
                     text: text,
                     sender: currentUser.id,
                     chatId: currentChat,
                     time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                 };
                 
-                try {
-                    const response = await fetch(`${API_BASE_URL}/messages`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${currentUser.token}`
-                        },
-                        body: JSON.stringify(message)
-                    });
-                    
-                    if (response.ok) {
-                        const savedMessage = await response.json();
-                        addMessageToChat(savedMessage, true);
-                        // Обновляем последнее сообщение в чате
-                        const chat = chats.find(c => c.id === currentChat);
-                        if (chat) {
-                            chat.lastMessage = text;
-                            chat.time = savedMessage.time;
-                            updateChatsList();
-                        }
-                    } else {
-                        message.id = Date.now();
-                        addMessageToChat(message, true);
-                        if (!messages[currentChat]) {
-                            messages[currentChat] = [];
-                        }
-                        messages[currentChat].push(message);
-                        
-                        const chat = chats.find(c => c.id === currentChat);
-                        if (chat) {
-                            chat.lastMessage = text;
-                            chat.time = message.time;
-                            updateChatsList();
-                        }
-                    }
-                } catch (error) {
-                    console.error('Ошибка отправки сообщения:', error);
-                    message.id = Date.now();
-                    addMessageToChat(message, true);
-                    if (!messages[currentChat]) {
-                        messages[currentChat] = [];
-                    }
-                    messages[currentChat].push(message);
-                    
-                    const chat = chats.find(c => c.id === currentChat);
-                    if (chat) {
-                        chat.lastMessage = text;
-                        chat.time = message.time;
-                        updateChatsList();
-                    }
+                // Добавляем сообщение
+                if (!messages[currentChat]) {
+                    messages[currentChat] = [];
                 }
+                messages[currentChat].push(message);
+                addMessageToChat(message, true);
+                
+                // Обновляем последнее сообщение в чате
+                const chat = chats.find(c => c.id === currentChat);
+                if (chat) {
+                    chat.lastMessage = text.length > 30 ? text.substring(0, 30) + '...' : text;
+                    chat.time = message.time;
+                    updateChatsList();
+                }
+                
+                // Сохраняем все сообщения
+                const allMessages = getAllMessages();
+                allMessages.push(message);
+                localStorage.setItem('messages', JSON.stringify(allMessages));
+                
+                // Сохраняем чаты
+                localStorage.setItem('chats', JSON.stringify(chats));
                 
                 input.value = '';
             }
         }
 
+        function getAllMessages() {
+            const savedMessages = localStorage.getItem('messages');
+            return savedMessages ? JSON.parse(savedMessages) : [];
+        }
+
         function addMessageToChat(message, isSelf) {
             const messagesContainer = document.getElementById('messagesContainer');
-            messagesContainer.innerHTML = ''; // Очищаем пустое состояние
+            
+            // Очищаем пустое состояние если это первое сообщение
+            if (messagesContainer.querySelector('.empty-state')) {
+                messagesContainer.innerHTML = '';
+            }
             
             const messageElement = document.createElement('div');
             messageElement.className = `message ${isSelf ? 'message-self' : 'message-other'} fade-in`;
@@ -1505,18 +1396,24 @@
             if (chat) {
                 document.getElementById('currentChatName').textContent = chat.name;
                 document.getElementById('currentChatAvatar').innerHTML = `<span>${getInitials(chat.name)}</span>`;
-                document.getElementById('user-status').textContent = 'online';
+                document.querySelector('.user-status').innerHTML = '<span class="online-dot"></span>online';
             }
             
             const messagesContainer = document.getElementById('messagesContainer');
-            messagesContainer.innerHTML = '';
             
             if (messages[currentChat] && messages[currentChat].length > 0) {
+                messagesContainer.innerHTML = '';
                 messages[currentChat].forEach(msg => {
                     addMessageToChat(msg, msg.sender === currentUser.id);
                 });
-            } else {
-                messagesContainer.innerHTML = '<div class="empty-state"><i class="fas fa-comment-dots"></i><p>Нет сообщений</p><p style="font-size: 14px; margin-top: 10px;">Напишите первое сообщение</p></div>';
+            } else if (!messagesContainer.querySelector('.empty-state')) {
+                messagesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comment-dots"></i>
+                        <p>Нет сообщений</p>
+                        <p style="font-size: 14px; margin-top: 10px;">Напишите первое сообщение</p>
+                    </div>
+                `;
             }
         }
 
@@ -1537,7 +1434,6 @@
                 document.getElementById('endCall').style.display = 'block';
                 document.getElementById('acceptCall').style.display = 'none';
                 
-                // Симуляция звонка
                 setTimeout(() => {
                     if (callActive) {
                         document.getElementById('callStatus').textContent = 'Разговор активен';
@@ -1572,7 +1468,6 @@
 
         function acceptCall() {
             callActive = true;
-            callIncoming = false;
             document.getElementById('callStatus').textContent = 'Разговор активен';
             document.getElementById('acceptCall').style.display = 'none';
             document.getElementById('endCall').style.display = 'block';
@@ -1580,7 +1475,6 @@
 
         function endCall() {
             callActive = false;
-            callIncoming = false;
             document.getElementById('callContainer').style.display = 'none';
         }
 
@@ -1596,7 +1490,7 @@
         function openEditProfileModal() {
             closeSettingsModal();
             if (currentUser) {
-                document.getElementById('editUsername').value = currentUser.username || '';
+                document.getElementById('editUsername').value = currentUser.username ? `@${currentUser.username}` : '';
             }
             document.getElementById('editProfileModal').style.display = 'flex';
         }
@@ -1606,16 +1500,34 @@
         }
 
         function saveProfileChanges() {
-            const username = document.getElementById('editUsername').value.trim();
+            const usernameInput = document.getElementById('editUsername').value.trim();
+            const username = usernameInput.startsWith('@') ? usernameInput.slice(1) : usernameInput;
             
-            if (username && username.startsWith('@')) {
-                currentUser.username = username.replace('@', '');
+            if (username) {
+                // Проверяем, нет ли другого пользователя с таким username
+                const allUsers = JSON.parse(localStorage.getItem('allUsers') || '[]');
+                const existingUser = allUsers.find(u => u.username === username && u.id !== currentUser.id);
+                
+                if (existingUser) {
+                    alert('Этот username уже занят');
+                    return;
+                }
+                
+                currentUser.username = username;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Обновляем в общем списке пользователей
+                const userIndex = allUsers.findIndex(u => u.id === currentUser.id);
+                if (userIndex !== -1) {
+                    allUsers[userIndex].username = username;
+                    localStorage.setItem('allUsers', JSON.stringify(allUsers));
+                }
+                
                 updateUserInfo();
                 closeEditProfileModal();
                 alert('Профиль успешно обновлен!');
             } else {
-                alert('Username должен начинаться с @');
+                alert('Введите username');
             }
         }
 
