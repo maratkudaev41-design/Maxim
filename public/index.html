@@ -21,6 +21,21 @@
             --online-color: #4caf50;
         }
 
+        .light-theme {
+            --primary-color: #3390ec;
+            --secondary-color: #a8c7fa;
+            --background-color: #ffffff;
+            --sidebar-color: #f0f2f5;
+            --chat-bg-color: #ffffff;
+            --message-self: #e3f2fd;
+            --message-other: #f5f5f5;
+            --text-color: #000000;
+            --text-secondary: #65676b;
+            --border-color: #e4e6eb;
+            --hover-color: #e4e6eb;
+            --online-color: #4caf50;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -33,6 +48,7 @@
             color: var(--text-color);
             height: 100vh;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         .container {
@@ -433,6 +449,28 @@
             background-color: var(--hover-color);
         }
 
+        /* Стили для модальных окон профиля */
+        .profile-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .save-profile-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         /* Анимации */
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -516,7 +554,7 @@
                     </div>
                 </div>
                 <div class="sidebar-actions">
-                    <i class="fas fa-ellipsis-v"></i>
+                    <i class="fas fa-ellipsis-v" onclick="openSettingsModal()"></i>
                 </div>
             </div>
 
@@ -617,6 +655,41 @@
         </div>
     </div>
 
+    <!-- Модальное окно настроек -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Настройки профиля</h3>
+                <span class="modal-close" onclick="closeSettingsModal()">&times;</span>
+            </div>
+            <div class="modal-option" onclick="openEditProfileModal()">
+                <i class="fas fa-user-edit"></i>
+                <span>Изменить профиль</span>
+            </div>
+            <div class="modal-option" onclick="toggleTheme()">
+                <i class="fas fa-palette"></i>
+                <span id="themeText">Светлая тема</span>
+            </div>
+            <div class="modal-option" onclick="logout()" style="color: #ff6b6b;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Выйти из аккаунта</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования профиля -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Редактировать профиль</h3>
+                <span class="modal-close" onclick="closeEditProfileModal()">&times;</span>
+            </div>
+            <input type="text" id="editFirstName" placeholder="Имя" class="profile-input">
+            <input type="text" id="editLastName" placeholder="Фамилия" class="profile-input">
+            <button onclick="saveProfileChanges()" class="save-profile-btn">Сохранить</button>
+        </div>
+    </div>
+
     <script>
         // Переменные состояния приложения
         let currentUser = null;
@@ -628,6 +701,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Проверяем, авторизован ли пользователь
             checkAuthStatus();
+            loadTheme();
             
             // Добавляем обработчик нажатия Enter в поле ввода сообщения
             document.getElementById('messageInput').addEventListener('keypress', function(e) {
@@ -655,19 +729,20 @@
             const password = document.getElementById('passwordInput').value;
             
             if (login && password) {
-                // В реальном приложении здесь был бы запрос к серверу
-                currentUser = {
-                    id: 1,
-                    name: 'Пользователь',
-                    phone: login,
-                    avatar: null
-                };
-                
-                // Сохраняем данные пользователя
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Переходим к основному интерфейсу
-                showMainApp();
+                // Проверяем, есть ли зарегистрированный пользователь
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    const user = JSON.parse(savedUser);
+                    // Простая проверка - в реальном приложении была бы проверка пароля
+                    if (user.phone === login) {
+                        currentUser = user;
+                        showMainApp();
+                    } else {
+                        alert('Неверные данные для входа или пользователь не зарегистрирован');
+                    }
+                } else {
+                    alert('Сначала необходимо зарегистрироваться');
+                }
             } else {
                 alert('Пожалуйста, заполните все поля');
             }
@@ -767,10 +842,12 @@
         });
 
         function removeAvatar() {
-            currentUser.avatar = null;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUserInfo();
-            closeAvatarModal();
+            if (confirm('Удалить аватарку?')) {
+                currentUser.avatar = null;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUserInfo();
+                closeAvatarModal();
+            }
         }
 
         // Функции для работы с чатами
@@ -893,6 +970,86 @@
         // Функции для мобильной версии
         function showChatList() {
             document.querySelector('.container').classList.remove('active-chat');
+        }
+
+        // Функции для троеточия (настроек)
+        function openSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        // Функции редактирования профиля
+        function openEditProfileModal() {
+            closeSettingsModal();
+            // Заполняем текущие данные
+            if (currentUser) {
+                const names = currentUser.name.split(' ');
+                document.getElementById('editFirstName').value = names[0] || '';
+                document.getElementById('editLastName').value = names[1] || '';
+            }
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+
+        function saveProfileChanges() {
+            const firstName = document.getElementById('editFirstName').value.trim();
+            const lastName = document.getElementById('editLastName').value.trim();
+            
+            if (firstName) {
+                currentUser.name = lastName ? `${firstName} ${lastName}` : firstName;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUserInfo();
+                closeEditProfileModal();
+                alert('Профиль успешно обновлен!');
+            } else {
+                alert('Имя не может быть пустым');
+            }
+        }
+
+        // Функция смены темы
+        function toggleTheme() {
+            const body = document.body;
+            const themeText = document.getElementById('themeText');
+            
+            if (body.classList.contains('light-theme')) {
+                body.classList.remove('light-theme');
+                themeText.textContent = 'Светлая тема';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('light-theme');
+                themeText.textContent = 'Тёмная тема';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Функция загрузки темы
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeText = document.getElementById('themeText');
+            
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                themeText.textContent = 'Тёмная тема';
+            } else {
+                themeText.textContent = 'Светлая тема';
+            }
+        }
+
+        // Функция выхода
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem('currentUser');
+                currentUser = null;
+                document.getElementById('mainApp').style.display = 'none';
+                document.getElementById('authScreen').style.display = 'flex';
+                closeSettingsModal();
+            }
         }
 
         // Загрузка тестовых данных
