@@ -882,14 +882,45 @@
         }
 
         function createNewChat() {
-            const friendUsername = document.getElementById('friendUsername').value.trim().toLowerCase();
-            const friendDisplayName = document.getElementById('friendDisplayName').value.trim();
+    const friendUsername = document.getElementById('friendUsername').value.trim().toLowerCase();
+    const friendDisplayName = document.getElementById('friendDisplayName').value.trim();
 
-            if (!friendUsername || !friendDisplayName) {
-                alert('Заполните все поля');
-                return;
-            }
+    if (!friendUsername || !friendDisplayName) {
+        alert('Заполните все поля');
+        return;
+    }
 
+    // Проверяем что не создаем чат с самим собой
+    if (friendUsername === currentUser.username) {
+        alert('Нельзя создать чат с самим собой!');
+        return;
+    }
+
+    // Проверяем нет ли уже такого чата
+    const existingChat = chats.find(chat => chat.friendUsername === friendUsername);
+    if (existingChat) {
+        alert('Чат с этим пользователем уже существует');
+        selectChat(existingChat.id);
+        closeNewChatModal();
+        return;
+    }
+
+    const newChat = {
+        id: Date.now().toString(),
+        friendName: friendDisplayName,
+        friendUsername: friendUsername,
+        friendAvatar: friendDisplayName.charAt(0).toUpperCase(),
+        messages: []
+    };
+
+    chats.push(newChat);
+    closeNewChatModal();
+    loadChats();
+    selectChat(newChat.id);
+    
+    // Добавляем тестовое сообщение
+    addMessageToChat(friendUsername, `Привет! Я ${friendDisplayName}`, false);
+}
             const newChat = {
                 id: Date.now().toString(),
                 friendName: friendDisplayName,
