@@ -840,6 +840,49 @@
     </div>
 
     <script>
+// ==================== БАЗА ДАННЫХ ====================
+function setupDatabase() {
+    // Создаем базу если её нет
+    if (!localStorage.getItem('messenger_db')) {
+        localStorage.setItem('messenger_db', JSON.stringify({
+            users: [],
+            chats: [],
+            messages: []
+        }));
+    }
+}
+
+function saveUserToDB(user) {
+    const db = JSON.parse(localStorage.getItem('messenger_db'));
+    
+    // Проверяем нет ли такого пользователя
+    const existingUser = db.users.find(u => u.username === user.username || u.phone === user.phone);
+    if (!existingUser) {
+        db.users.push({
+            id: user.id,
+            username: user.username,
+            name: user.name,
+            phone: user.phone,
+            avatar: user.avatar,
+            registered_at: new Date().toISOString()
+        });
+        
+        localStorage.setItem('messenger_db', JSON.stringify(db));
+        console.log('✅ Пользователь сохранен в базу для поиска');
+    }
+}
+
+function searchUsersInDB(query) {
+    const db = JSON.parse(localStorage.getItem('messenger_db'));
+    const searchTerm = query.toLowerCase().trim();
+    
+    return db.users.filter(user => 
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.name.toLowerCase().includes(searchTerm) ||
+        user.phone.includes(searchTerm)
+    );
+}
+// ==================== КОНЕЦ БАЗЫ ====================
         // Переменные состояния приложения
         let currentUser = null;
         let currentChat = null;
@@ -853,7 +896,9 @@
             checkAuthStatus();
             loadTheme();
             initializeDemoUsers();
-            
+            setupDatabase();            
+
+
             document.getElementById('messageInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     sendMessage();
@@ -1016,6 +1061,8 @@
 
             allUsers.push(newUser);
             localStorage.setItem('allUsers', JSON.stringify(allUsers));
+
+            saveUserToDB(newUser);
             
             currentUser = newUser;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -1131,31 +1178,25 @@
         }
 
         function searchUsers() {
-            const searchTerm = document.getElementById('userSearchInput').value.toLowerCase().trim();
-            const resultsContainer = document.getElementById('userSearchResults');
-            
-            if (searchTerm.length < 1) {
-                resultsContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-users"></i>
-                        <p>Введите @username для поиска</p>
-                        <p style="font-size: 12px; margin-top: 5px;">Пример: @mehh или @alex</p>
-                    </div>
-                `;
-                return;
-            }
+    const searchTerm = document.getElementById('userSearchInput').value.toLowerCase().trim();
+    const resultsContainer = document.getElementById('userSearchResults');
+    
+    if (searchTerm.length < 1) {
+        resultsContainer.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <p>Введите @username для поиска</p>
+                <p style="font-size: 12px; margin-top: 5px;">Пример: @mehh или @alex</p>
+            </div>
+        `;
+        return;
+    }
 
-            const filteredUsers = allUsers.filter(user => {
-                const searchText = searchTerm.startsWith('@') ? searchTerm.slice(1) : searchTerm;
-                return (
-                    user.username.toLowerCase().includes(searchText) ||
-                    user.name.toLowerCase().includes(searchTerm) ||
-                    user.phone.includes(searchTerm)
-                );
-            });
+    // ⭐⭐⭐ ЗАМЕНЯЕМ ЭТУ ЧАСТЬ НА ПОИСК В БАЗЕ ⭐⭐⭐
+    const filteredUsers = searchUsersInDB(searchTerm);
 
-            displayUserSearchResults(filteredUsers);
-        }
+    displayUserSearchResults(filteredUsers);
+}
 
         function displayUserSearchResults(users) {
             const resultsContainer = document.getElementById('userSearchResults');
